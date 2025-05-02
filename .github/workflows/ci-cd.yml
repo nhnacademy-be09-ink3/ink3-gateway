@@ -95,18 +95,14 @@ jobs:
       - name: Package application
         run: mvn package -DskipTests -B
 
-      # ✅ SSH 연결 확인 단계
-      - name: Check SSH connectivity
+      - name: Test SSH Only
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.SSH_IP }}
           port: ${{ secrets.SSH_PORT }}
           username: ${{ secrets.SSH_ID }}
           key: ${{ secrets.SSH_KEY }}
-          script: |
-            echo "✅ SSH 연결 성공!"
-            hostname
-            whoami
+          script: echo "✅ SSH 연결 성공"
 
       - name: Copy JAR to server (SSH key auth)
         uses: appleboy/scp-action@v0.1.5
