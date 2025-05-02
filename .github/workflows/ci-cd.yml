@@ -79,7 +79,7 @@ jobs:
   #       run: kill $(cat app.pid)
 
   deploy:
-    needs: smoke-test
+    # needs: smoke-test
     runs-on: ubuntu-latest
 
     steps:
