@@ -102,7 +102,7 @@ jobs:
           port: 8822
           username: be9-team3
           key: ${{ secrets.SSH_PRIVATE_KEY }} 
-          script: echo "✅ SSH 연결 성공"
+          script: echo "✅ SSH 연결 성공."
 
       - name: Copy JAR to server (SSH key auth)
         uses: appleboy/scp-action@v0.1.5
