@@ -19,11 +19,11 @@ jobs:
         uses: actions/checkout@v3
 
       # 2. JDK 설정 (Temurin 17)
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@v3
         with:
           distribution: temurin
-          java-version: 17
+          java-version: 21
           cache: maven
 
       # 3. Maven 의존성 캐시
@@ -40,25 +40,40 @@ jobs:
         run: mvn clean verify -B
 
 
-  # 배포용 예시 (main 브랜치에만 동작)
-  deploy:
+  #실행테스트
+  smoke-test:
     needs: build
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
 
     steps:
+      # 1. 빌드 결과를 받아오려면 다시 체크아웃 (artifact 공유 설정이 없다면)
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # SSH 키를 이용해 서버에 접속하여 배포 스크립트 실행
-      - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.7.0
+      # 2. JDK 설정 (Temurin 21)
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
         with:
-          ssh-private-key: ${{ secrets.DEPLOY_SSH_KEY }}
+          distribution: temurin
+          java-version: 21
 
-      - name: Deploy to server
-        run: ssh -o StrictHostKeyChecking=no user@your.server.com '
-          cd /path/to/app &&
-          git pull origin main &&
-          ./gradlew bootJar &&
-          sudo systemctl restart your-app.service
+      # 3. 패키징
+      - name: Package application
+        run: mvn package -DskipTests -B
+
+      # 4. 백그라운드로 애플리케이션 실행
+      - name: Run application in background
+        run: |
+          nohup java -jar target/*.jar > app.log 2>&1 & echo $! > app.pid
+
+      # 5. 기동 대기
+      - name: Wait for application to start
+        run: sleep 30
+
+      # 6. 헬스 체크 엔드포인트 호출
+      - name: Check health endpoint
+        run: curl --fail http://localhost:8080/actuator/health
+
+      # 7. 애플리케이션 종료
+      - name: Stop application
+        run: kill $(cat app.pid)
