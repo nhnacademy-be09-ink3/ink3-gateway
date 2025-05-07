@@ -1,0 +1,16 @@
+spring:
+  profiles:
+    active: dev
+
+jwt:
+  secret: dev-secret
+  cookie-name: jwt
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://admin:1234@localhost:10252/eureka,http://admin:1234@localhost:10253/eureka
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: true
