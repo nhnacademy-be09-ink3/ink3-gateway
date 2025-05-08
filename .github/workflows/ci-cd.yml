@@ -130,7 +130,7 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           username: ${{ secrets.SSH_ID }}
           key: ${{ secrets.SSH_KEY }}
-          source: "gateway/target/*.jar"
+          source: "target/*.jar"
           target: "~/ink3-server/gateway"
 
       - name: Run deploy.sh on server
