@@ -143,5 +143,5 @@ jobs:
           script: |
             cd ~/ink3-server/gateway
             chmod +x deploy.sh
-            nohup ./deploy.sh "${{ steps.extract_version.outputs.version }}" > deploy.log 2>&1 &
+            nohup ./deploy.sh > deploy.log 2>&1 &
             exit 0
