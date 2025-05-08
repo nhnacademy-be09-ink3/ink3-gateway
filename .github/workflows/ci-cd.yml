@@ -78,7 +78,7 @@ jobs:
         run: sleep 15
 
       - name: Check JAR file exists
-        run: ls -lh gateway/target/gateway-${{ steps.extract_version.outputs.version }}.jar
+        run: ls -lh target/gateway-${{ steps.extract_version.outputs.version }}.jar
 
       - name: Check health endpoint
         run: curl --fail http://localhost:10250/actuator/health
