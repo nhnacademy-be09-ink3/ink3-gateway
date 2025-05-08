@@ -112,7 +112,7 @@ jobs:
         run: mvn package -DskipTests=true -B
 
       - name: Verify JAR file
-        run: ls -lh gateway/target/*.jar
+        run: ls -lh target/*.jar
 
       - name: Extract version from POM
         id: extract_version
