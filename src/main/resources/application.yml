@@ -28,6 +28,13 @@ spring:
           filters:
             - StripPrefix=1
 
+        - id: front-service
+          uri: lb://INK3-FRONT
+          predicates:
+            - Path=/front/**
+          filters:
+            - StripPrefix=1
+
   main:
     allow-bean-definition-overriding: true
 
