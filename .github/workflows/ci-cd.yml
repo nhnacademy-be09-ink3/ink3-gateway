@@ -40,8 +40,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-m2-
 
-      - name: Build with coverage
-        run: mvn clean verify -B
+      - name: Build all modules with Maven
+        run: mvn clean install -DskipTests=true -B
 
   sonar-analysis:
     name: SonarQube Analysis
@@ -62,7 +62,7 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          mvn clean verify sonar:sonar \
+          mvn clean verify -Dspring.profiles.active=test sonar:sonar \
             -Dsonar.projectKey=ink3_gateway \
             -Dsonar.projectName='ink3_gateway' \
             -Dsonar.host.url=http://s4.java21.net:9000 \
