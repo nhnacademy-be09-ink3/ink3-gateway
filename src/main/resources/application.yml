@@ -1,11 +1,10 @@
 server:
   port: 10250
-
 spring:
   application:
     name: ink3-gateway
   profiles:
-    active: dev
+    active: prod
   cloud:
     gateway:
       default-filters:
@@ -41,19 +40,8 @@ spring:
             - Path=/auth/**
           filters:
             - StripPrefix=1
-
   main:
     allow-bean-definition-overriding: true
-
-eureka:
-  client:
-    service-url:
-      defaultZone: http://admin:1234@localhost:10252/eureka/
-    fetch-registry: true
-    register-with-eureka: true
-  instance:
-    prefer-ip-address: true
-
 management:
   endpoints:
     web:
