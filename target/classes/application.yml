@@ -1,11 +1,10 @@
 server:
   port: 10250
-
 spring:
   application:
-    name: gateway-server
+    name: ink3-gateway
   profiles:
-    active: dev
+    active: prod
   cloud:
     gateway:
       default-filters:
@@ -21,41 +20,28 @@ spring:
               - DELETE
             allowedHeaders: "*"
       routes:
-        - id: api-service
-          uri: lb://INK3-API
+        - id: shop-service
+          uri: lb://SHOP-SERVICE
           predicates:
             - Path=/api/**
           filters:
             - StripPrefix=1
 
         - id: front-service
-          uri: lb://INK3-FRONT
+          uri: lb://FRONT-SERVICE
           predicates:
             - Path=/front/**
           filters:
             - StripPrefix=1
 
         - id: auth-service
-          uri: lb://INK3-AUTH
+          uri: lb://AUTH-SERVICE
           predicates:
             - Path=/auth/**
           filters:
             - StripPrefix=1
-
   main:
     allow-bean-definition-overriding: true
-
-eureka:
-  client:
-    service-url:
-      defaultZone: http://admin:1234@localhost:10252
-    fetch-registry: true
-    register-with-eureka: true
-  instance:
-    prefer-ip-address: true
-    metadata-map:
-      management.context-path: /eureka
-
 management:
   endpoints:
     web:
