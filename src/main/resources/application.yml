@@ -21,22 +21,22 @@ spring:
               - DELETE
             allowedHeaders: "*"
       routes:
-        - id: api-service
-          uri: lb://INK3-API
+        - id: shop-service
+          uri: lb://SHOP-SERVICE
           predicates:
             - Path=/api/**
           filters:
             - StripPrefix=1
 
         - id: front-service
-          uri: lb://INK3-FRONT
+          uri: lb://FRONT-SERVICE
           predicates:
             - Path=/front/**
           filters:
             - StripPrefix=1
 
         - id: auth-service
-          uri: lb://INK3-AUTH
+          uri: lb://AUTH-SERVICE
           predicates:
             - Path=/auth/**
           filters:
@@ -48,13 +48,11 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: http://admin:1234@localhost:10252/eureka/eureka
+      defaultZone: http://admin:1234@localhost:10252/eureka/
     fetch-registry: true
     register-with-eureka: true
   instance:
     prefer-ip-address: true
-    metadata-map:
-      management.context-path: /eureka
 
 management:
   endpoints:
