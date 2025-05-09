@@ -40,8 +40,16 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-m2-
 
-      - name: Build all modules with Maven
-        run: mvn clean install -DskipTests=true -B
+      - name: Build, Test, Generate Coverage
+        run: mvn clean verify -B
+
+      - name: Upload Coverage Report and JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: |
+            target/*.jar
+            target/site/jacoco/jacoco.xml
 
   sonar-analysis:
     name: SonarQube Analysis
@@ -58,21 +66,26 @@ jobs:
           distribution: temurin
           java-version: 21
 
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+
       - name: SonarQube Scan
         run: |
-          mvn verify sonar:sonar \
+          mvn sonar:sonar \
             -Dsonar.projectKey=ink3_gateway \
             -Dsonar.projectName='ink3_gateway' \
             -Dsonar.host.url=http://s4.java21.net:9000 \
             -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
             -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
 
-      - name: Check coverage threshold
+      - name: Check Coverage Threshold
         run: |
-          LINE_COVERAGE=$(grep -A1 "<counter type=\"LINE\"" target/site/jacoco/jacoco.xml | grep -oP 'covered="\K[0-9]+' | paste -sd+ - | bc)
-          LINE_MISSED=$(grep -A1 "<counter type=\"LINE\"" target/site/jacoco/jacoco.xml | grep -oP 'missed="\K[0-9]+' | paste -sd+ - | bc)
-          TOTAL=$((LINE_COVERAGE + LINE_MISSED))
-          PERCENT=$((LINE_COVERAGE * 100 / TOTAL))
+          LINE_COVERED=$(grep -oP 'covered="\K[0-9]+' target/site/jacoco/jacoco.xml | paste -sd+ - | bc)
+          LINE_MISSED=$(grep -oP 'missed="\K[0-9]+' target/site/jacoco/jacoco.xml | paste -sd+ - | bc)
+          TOTAL=$((LINE_COVERED + LINE_MISSED))
+          PERCENT=$((LINE_COVERED * 100 / TOTAL))
           echo "Coverage: $PERCENT%"
   #          if [ "$PERCENT" -lt 60 ]; then
   #            echo "Coverage is below 60%! Failing build."
