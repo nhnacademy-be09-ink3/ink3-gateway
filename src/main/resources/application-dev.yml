@@ -10,7 +10,7 @@ jwt:
 eureka:
   client:
     service-url:
-      defaultZone: http://admin:1234@localhost:10252/eureka/eureka
+      defaultZone: ${EUREKA_URL}
     fetch-registry: true
     register-with-eureka: true
   instance:
