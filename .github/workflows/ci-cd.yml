@@ -43,6 +43,8 @@ jobs:
       - name: Build all modules with Maven
         run: mvn clean install -DskipTests=true -B
 
+
+
   sonar-analysis:
     name: SonarQube Analysis
     runs-on: ubuntu-latest
@@ -109,9 +111,12 @@ jobs:
         run: mvn package -DskipTests=true -B
 
       - name: Run application in background
+        env:
+          EUREKA_URL: ${{ secrets.EUREKA_URL }}
         run: |
           nohup java -jar target/gateway-${{ steps.extract_version.outputs.version }}.jar --server.port=10250 > app.log 2>&1 &
           echo $! > app.pid
+
 
       - name: Wait for application to start
         run: sleep 15
@@ -126,6 +131,8 @@ jobs:
         run: kill $(cat app.pid)
 
       - name: Run unit tests
+        env:
+          EUREKA_URL: ${{ secrets.EUREKA_URL }}
         run: mvn test -B
 
       - name: Print app log if health check fails
@@ -182,5 +189,6 @@ jobs:
           script: |
             cd ~/ink3-server/gateway
             chmod +x deploy.sh
+            export EUREKA_URL=${{ secrets.EUREKA_URL }}
             nohup ./deploy.sh > deploy.log 2>&1 &
             exit 0
