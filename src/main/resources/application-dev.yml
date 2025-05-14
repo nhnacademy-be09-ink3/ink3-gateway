@@ -1,11 +1,6 @@
 server:
   port: 10265
 
-spring:
-  config:
-    activate:
-      on-profile: dev
-
 jwt:
   secret: dev-secret
   cookie-name: jwt
@@ -13,7 +8,7 @@ jwt:
 eureka:
   client:
     service-url:
-      defaultZone: ${EUREKA_URL}
+      defaultZone: ${DEV_EUREKA_URL}
     fetch-registry: true
     register-with-eureka: true
   instance:
