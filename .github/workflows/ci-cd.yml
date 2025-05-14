@@ -187,6 +187,7 @@ jobs:
           script: |
             cd ~/ink3-server-dev/gateway-dev
             chmod +x deploy.sh
+            export REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
             export EUREKA_URL=${{ secrets.DEV_EUREKA_URL }}
             nohup ./deploy.sh > deploy.log 2>&1 &
             exit 0
