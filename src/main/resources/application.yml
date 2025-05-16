@@ -1,14 +1,8 @@
-server:
-  port: 10250
 spring:
   application:
     name: ink3-gateway
-  profiles:
-    active: prod
   cloud:
     gateway:
-      default-filters:
-        - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
       globalcors:
         corsConfigurations:
           '[/**]':
@@ -17,33 +11,10 @@ spring:
               - GET
               - POST
               - PUT
+              - PATCH
               - DELETE
             allowedHeaders: "*"
-      routes:
-        - id: shop-service
-          uri: lb://SHOP-SERVICE
-          predicates:
-            - Path=/api/**
-          filters:
-            - StripPrefix=1
-
-        - id: front-service
-          uri: lb://FRONT-SERVICE
-          predicates:
-            - Path=/front/**
-          filters:
-            - StripPrefix=1
-
-        - id: auth-service
-          uri: lb://AUTH-SERVICE
-          predicates:
-            - Path=/auth/**
-          filters:
-            - StripPrefix=1
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
   main:
     allow-bean-definition-overriding: true
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info

@@ -1,12 +1,10 @@
 spring:
-  config:
-    activate:
-      on-profile: dev
-
-jwt:
-  secret: dev-secret
-  cookie-name: jwt
-
+  data:
+    redis:
+      host: s4.java21.net
+      port: 6379
+      database: 296
+      password: ${REDIS_PASSWORD}
 eureka:
   client:
     service-url:
