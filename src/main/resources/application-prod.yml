@@ -1,10 +1,10 @@
-server:
-  port: 10250
-
-jwt:
-  secret: prod-secret
-  cookie-name: jwt
-
+spring:
+  data:
+    redis:
+      host: s4.java21.net
+      port: 6379
+      database: 295
+      password: ${REDIS_PASSWORD}
 eureka:
   client:
     service-url:
