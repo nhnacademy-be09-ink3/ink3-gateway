@@ -178,7 +178,7 @@ jobs:
           username: ${{ secrets.SSH_ID }}
           key: ${{ secrets.SSH_KEY }}
           source: "target/*.jar"
-          target: "~/ink3-server/gateway"
+          target: "~/ink3-server-dev/gateway-dev/"
 
       - name: Run deploy.sh on server
         uses: appleboy/ssh-action@v0.1.7
@@ -188,7 +188,7 @@ jobs:
           username: ${{ secrets.SSH_ID }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            cd ~/ink3-server/gateway
+            cd ~/ink3-server-dev/gateway-dev
             chmod +x deploy.sh
             export EUREKA_URL=${{ secrets.DEV_EUREKA_URL }}
             export REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
