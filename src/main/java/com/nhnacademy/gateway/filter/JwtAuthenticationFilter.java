@@ -57,6 +57,10 @@ public class JwtAuthenticationFilter implements GlobalFilter {
         try {
             Claims claims = jwtTokenValidator.validateAccessToken(accessToken);
 
+            if (!claims.get("tokenType", String.class).equals("access")) {
+                return onError(exchange);
+            }
+
             Long userId = claims.get("id", Long.class);
             String role = claims.get("role", String.class);
 
