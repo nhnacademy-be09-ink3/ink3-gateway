@@ -16,13 +16,16 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
+import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 @ExtendWith(MockitoExtension.class)
@@ -58,7 +61,8 @@ class JwtAuthenticationFilterTest {
     void filterWithValidToken() {
         Claims claims = mock(Claims.class);
         when(claims.get("id", Long.class)).thenReturn(1L);
-        when(claims.get("role", String.class)).thenReturn("USER");
+        when(claims.get("userType", String.class)).thenReturn("USER");
+        when(claims.get("tokenType", String.class)).thenReturn("access");
         when(jwtTokenValidator.validateAccessToken("validToken")).thenReturn(claims);
 
         MockServerHttpRequest request = MockServerHttpRequest.get("/protected")
@@ -72,6 +76,15 @@ class JwtAuthenticationFilterTest {
 
         Mono<Void> result = filter.filter(exchange, chain);
         result.block();
+
+        ArgumentCaptor<ServerWebExchange> exchangeCaptor = ArgumentCaptor.forClass(ServerWebExchange.class);
+        verify(chain).filter(exchangeCaptor.capture());
+
+        ServerWebExchange mutatedExchange = exchangeCaptor.getValue();
+        ServerHttpRequest mutatedRequest = mutatedExchange.getRequest();
+
+        assertThat(mutatedRequest.getHeaders().getFirst("X-User-Id")).isEqualTo("1");
+        assertThat(mutatedRequest.getHeaders().getFirst("X-User-Role")).isEqualTo("USER");
 
         verify(chain).filter(any());
     }

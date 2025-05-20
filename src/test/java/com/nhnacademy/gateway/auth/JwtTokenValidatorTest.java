@@ -43,7 +43,7 @@ class JwtTokenValidatorTest {
 
         String token = Jwts.builder()
                 .claim("id", 1L)
-                .claim("role", "USER")
+                .claim("userType", "USER")
                 .subject("username")
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + 60000))
@@ -56,7 +56,7 @@ class JwtTokenValidatorTest {
 
         assertThat(claims.getSubject()).isEqualTo("username");
         assertThat(claims.get("id", Long.class)).isEqualTo(1L);
-        assertThat(claims.get("role", String.class)).isEqualTo("USER");
+        assertThat(claims.get("userType", String.class)).isEqualTo("USER");
     }
 
     @Test
