@@ -13,3 +13,7 @@ eureka:
     register-with-eureka: true
   instance:
     prefer-ip-address: true
+gateway:
+  whitelist:
+    - /auth/**
+    - /shop/**
