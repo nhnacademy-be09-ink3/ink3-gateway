@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -70,7 +69,7 @@ class PublicKeyProviderTest {
     }
 
     @Test
-    void fetchPublicKeyWithFail() throws JsonProcessingException {
+    void fetchPublicKeyWithFail() throws Exception {
         String invalidPem = "-----BEGIN PUBLIC KEY-----\nTHIS_IS_NOT_BASE64!!@@\n-----END PUBLIC KEY-----";
 
         ObjectNode root = new ObjectMapper().createObjectNode();

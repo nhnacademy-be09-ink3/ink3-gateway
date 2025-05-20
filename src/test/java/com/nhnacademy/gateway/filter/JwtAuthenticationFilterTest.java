@@ -41,7 +41,7 @@ class JwtAuthenticationFilterTest {
     }
 
     @Test
-    void filterWithWhitelistedRequest() throws Exception {
+    void filterWithWhitelistedRequest() {
         MockServerHttpRequest request = MockServerHttpRequest.get("/whitelist/test").build();
         MockServerWebExchange exchange = MockServerWebExchange.from(request);
 
