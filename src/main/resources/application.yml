@@ -3,11 +3,6 @@ spring:
     name: ink3-gateway
   config:
     import: optional:configserver:https://ink3.shop/config/
-  rabbitmq:
-    host: ${RABBITMQ_HOST}
-    port: ${RABBITMQ_PORT:5672}
-    username: ${RABBITMQ_USERNAME}
-    password: ${RABBITMQ_PASSWORD}
   cloud:
     bus:
       enabled: true
