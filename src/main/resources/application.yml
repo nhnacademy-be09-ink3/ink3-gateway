@@ -4,10 +4,10 @@ spring:
   config:
     import: optional:configserver:https://ink3.shop/config/
   rabbitmq:
-    host: s4.java21.net
-    port: 5672
-    username: admin
-    password: nhnacademy123!
+    host: ${RABBITMQ_HOST}
+    port: ${RABBITMQ_PORT}
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
   cloud:
     bus:
       enabled: true
