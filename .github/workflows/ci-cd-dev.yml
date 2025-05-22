@@ -122,7 +122,7 @@ jobs:
           echo $! > app.pid
 
       - name: Wait for application to start
-        run: sleep 15
+        run: sleep 30
 
       - name: Check JAR file exists
         run: ls -lh target/gateway-${{ steps.extract_version.outputs.version }}.jar
