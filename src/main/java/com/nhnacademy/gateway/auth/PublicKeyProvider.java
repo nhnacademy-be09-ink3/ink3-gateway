@@ -8,7 +8,7 @@ import java.security.PublicKey;
 import java.security.spec.X509EncodedKeySpec;
 import java.time.Duration;
 import java.util.Base64;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -22,14 +22,12 @@ public class PublicKeyProvider {
     private final ObjectMapper objectMapper;
     private final WebClient.Builder webClientBuilder;
 
-    private volatile PublicKey cachedKey;
-
-    private final AtomicBoolean initialized = new AtomicBoolean(false);
+    private final AtomicReference<PublicKey> cachedKey = new AtomicReference<>();
 
     @Scheduled(fixedDelay = 3600000)
     public void fetchPublicKey() {
         try {
-            log.info("🔐 공개키 요청 시도");
+            log.info("🔐 Sending request to fetch the public key from remote server.");
             String response = webClientBuilder.build()
                     .get()
                     .uri("http://auth-service/auth/public-key")
@@ -40,30 +38,28 @@ public class PublicKeyProvider {
             JsonNode root = objectMapper.readTree(response);
             String key = root.path("data").path("publicKey").asText();
 
-            if (key == null || key.isBlank()) {
+            if (key.isBlank()) {
                 throw new PublicKeyLoadException("Public key is empty");
             }
 
-            key = key
-                    .replace("-----BEGIN PUBLIC KEY-----", "")
+            key = key.replace("-----BEGIN PUBLIC KEY-----", "")
                     .replace("-----END PUBLIC KEY-----", "")
                     .replaceAll("\\s+", "");
 
             byte[] keyBytes = Base64.getDecoder().decode(key);
             X509EncodedKeySpec keySpec = new X509EncodedKeySpec(keyBytes);
-            this.cachedKey = KeyFactory.getInstance("RSA").generatePublic(keySpec);
-            initialized.set(true);
-            log.info("✅ 공개키 갱신 성공");
-
-        } catch (Throwable throwable) {
-            log.error("❌ 공개키 로드 실패", throwable);
+            cachedKey.set(KeyFactory.getInstance("RSA").generatePublic(keySpec));
+            log.info("✅ Public key successfully updated.");
+        } catch (Exception e) {
+            log.error("❌ Failed to load public key.", e);
         }
     }
 
     public PublicKey get() {
-        if (!initialized.get()) {
+        PublicKey key = cachedKey.get();
+        if (key == null) {
             throw new IllegalStateException("Public key has not been initialized.");
         }
-        return cachedKey;
+        return key;
     }
 }

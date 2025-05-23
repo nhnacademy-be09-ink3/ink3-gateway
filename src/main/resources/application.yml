@@ -1,20 +1,13 @@
 spring:
   application:
     name: ink3-gateway
+  config:
+    import: optional:configserver:https://ink3.shop/config/
+    rabbitmq:
+    host: s4.java21.net
+    port: 5672
+    username: admin
+    password: nhnacademy123!
   cloud:
-    gateway:
-      globalcors:
-        corsConfigurations:
-          '[/**]':
-            allowedOrigins: "*"
-            allowedMethods:
-              - GET
-              - POST
-              - PUT
-              - PATCH
-              - DELETE
-            allowedHeaders: "*"
-      default-filters:
-        - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
-  main:
-    allow-bean-definition-overriding: true
+    bus:
+      enabled: true
