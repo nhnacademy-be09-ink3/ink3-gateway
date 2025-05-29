@@ -1,15 +1,15 @@
 package com.nhnacademy.gateway.config;
 
-import java.util.Arrays;
 import java.util.List;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.context.properties.bind.Bindable;
 import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.cloud.context.scope.refresh.RefreshScopeRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
-import org.springframework.web.util.pattern.PathPattern;
 import org.springframework.web.util.pattern.PathPatternParser;
 
 @Slf4j
@@ -18,7 +18,7 @@ public class GatewayWhitelistCache {
     private final Environment environment;
     private final PathPatternParser parser = new PathPatternParser();
     @Getter
-    private volatile List<PathPattern> whiteListPatterns = List.of();
+    private volatile List<WhitelistItem> whitelist = List.of();
 
     public GatewayWhitelistCache(Environment environment) {
         this.environment = environment;
@@ -32,10 +32,14 @@ public class GatewayWhitelistCache {
     }
 
     private void refreshPatterns() {
-        String[] whitelist = Binder.get(environment).bind("gateway.whitelist", String[].class).orElse(new String[0]);
-        this.whiteListPatterns = Arrays.stream(whitelist)
-                .map(parser::parse)
-                .toList();
-        log.info("✅ Whitelist Updated: {}", whiteListPatterns);
+        List<RawWhitelistItem> rawList = Binder.get(environment)
+                .bind("gateway.whitelist", Bindable.listOf(RawWhitelistItem.class))
+                .orElse(List.of());
+        this.whitelist = rawList.stream()
+                .map(item -> new WhitelistItem(
+                        parser.parse(item.path()),
+                        item.methods().stream().map(HttpMethod::valueOf).toList())
+                ).toList();
+        log.info("📃 Whitelist Updated: {}", whitelist);
     }
 }

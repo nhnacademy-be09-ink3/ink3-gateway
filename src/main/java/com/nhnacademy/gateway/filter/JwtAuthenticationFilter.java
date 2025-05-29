@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.PathContainer;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -25,17 +26,18 @@ public class JwtAuthenticationFilter implements GlobalFilter {
     private final JwtTokenValidator jwtTokenValidator;
     private final GatewayWhitelistCache gatewayWhitelistCache;
 
-    private boolean isWhitelisted(String path) {
+    private boolean isWhitelisted(String path, HttpMethod method) {
         PathContainer container = PathContainer.parsePath(path);
-        return gatewayWhitelistCache.getWhiteListPatterns().stream()
-                .anyMatch(pattern -> pattern.matches(container));
+        return gatewayWhitelistCache.getWhitelist().stream()
+                .anyMatch(item -> item.pathPattern().matches(container) &&
+                        (item.methods().isEmpty() || item.methods().contains(method)));
     }
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
 
-        if (isWhitelisted(request.getURI().getPath())) {
+        if (isWhitelisted(request.getURI().getPath(), request.getMethod())) {
             return chain.filter(exchange);
         }
 
