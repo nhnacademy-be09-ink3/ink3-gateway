@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import com.nhnacademy.gateway.auth.JwtTokenValidator;
 import com.nhnacademy.gateway.config.GatewayWhitelistCache;
+import com.nhnacademy.gateway.config.WhitelistItem;
 import com.nhnacademy.gateway.exception.TokenBlacklistedException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -22,6 +23,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
@@ -45,11 +47,14 @@ class JwtAuthenticationFilterTest {
 
     @BeforeEach
     void setUp() {
-        when(gatewayWhitelistCache.getWhiteListPatterns()).thenReturn(List.of(parser.parse("/whitelist/**")));
+        when(gatewayWhitelistCache.getWhitelist()).thenReturn(List.of(new WhitelistItem(
+                parser.parse("/whitelist/**"),
+                List.of(HttpMethod.GET)
+        )));
     }
 
     @Test
-    void filterWithWhitelistedRequest() {
+    void filterWithWhitelistedPathRequest() {
         MockServerHttpRequest request = MockServerHttpRequest.get("/whitelist/test").build();
         MockServerWebExchange exchange = MockServerWebExchange.from(request);
 
@@ -60,6 +65,20 @@ class JwtAuthenticationFilterTest {
         result.block();
 
         verify(chain).filter(any());
+    }
+
+    @Test
+    void filterWithWhitelistedPathAndNotAllowedMethodRequest() {
+        MockServerHttpRequest request = MockServerHttpRequest.post("/whitelist/test").build();
+        MockServerWebExchange exchange = MockServerWebExchange.from(request);
+
+        GatewayFilterChain chain = mock(GatewayFilterChain.class);
+
+        Mono<Void> result = filter.filter(exchange, chain);
+        result.block();
+
+        assertThat(exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+        verify(chain, never()).filter(any());
     }
 
     @Test
