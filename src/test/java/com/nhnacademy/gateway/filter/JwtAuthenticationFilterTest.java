@@ -8,7 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.nhnacademy.gateway.auth.JwtTokenValidator;
-import com.nhnacademy.gateway.config.GatewayWhitelistProperties;
+import com.nhnacademy.gateway.config.GatewayWhitelistCache;
 import com.nhnacademy.gateway.exception.TokenBlacklistedException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -17,6 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
@@ -26,6 +27,7 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.util.pattern.PathPatternParser;
 import reactor.core.publisher.Mono;
 
 @ExtendWith(MockitoExtension.class)
@@ -33,14 +35,17 @@ class JwtAuthenticationFilterTest {
     @Mock
     JwtTokenValidator jwtTokenValidator;
 
-    GatewayWhitelistProperties properties;
+    @Mock
+    GatewayWhitelistCache gatewayWhitelistCache;
 
+    @InjectMocks
     JwtAuthenticationFilter filter;
+
+    PathPatternParser parser = new PathPatternParser();
 
     @BeforeEach
     void setUp() {
-        properties = new GatewayWhitelistProperties(List.of("/whitelist/**"));
-        filter = new JwtAuthenticationFilter(jwtTokenValidator, properties);
+        when(gatewayWhitelistCache.getWhiteListPatterns()).thenReturn(List.of(parser.parse("/whitelist/**")));
     }
 
     @Test
