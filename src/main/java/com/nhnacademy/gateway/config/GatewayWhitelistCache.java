@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.cloud.context.scope.refresh.RefreshScopeRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
@@ -31,7 +32,7 @@ public class GatewayWhitelistCache {
     }
 
     private void refreshPatterns() {
-        String[] whitelist = environment.getProperty("gateway.whitelist", String[].class, new String[0]);
+        String[] whitelist = Binder.get(environment).bind("gateway.whitelist", String[].class).get();
         this.whiteListPatterns = Arrays.stream(whitelist)
                 .map(parser::parse)
                 .toList();
