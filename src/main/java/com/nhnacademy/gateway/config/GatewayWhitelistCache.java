@@ -32,7 +32,7 @@ public class GatewayWhitelistCache {
     }
 
     private void refreshPatterns() {
-        String[] whitelist = Binder.get(environment).bind("gateway.whitelist", String[].class).get();
+        String[] whitelist = Binder.get(environment).bind("gateway.whitelist", String[].class).orElse(new String[0]);
         this.whiteListPatterns = Arrays.stream(whitelist)
                 .map(parser::parse)
                 .toList();
