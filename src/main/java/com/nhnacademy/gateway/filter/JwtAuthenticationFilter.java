@@ -1,12 +1,12 @@
 package com.nhnacademy.gateway.filter;
 
 import com.nhnacademy.gateway.auth.JwtTokenValidator;
-import com.nhnacademy.gateway.config.GatewayWhitelistProperties;
+import com.nhnacademy.gateway.config.GatewayWhitelistCache;
 import com.nhnacademy.gateway.exception.TokenBlacklistedException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
-import java.util.List;
 import java.util.Objects;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
@@ -16,26 +16,19 @@ import org.springframework.http.server.PathContainer;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
-import org.springframework.web.util.pattern.PathPattern;
-import org.springframework.web.util.pattern.PathPatternParser;
 import reactor.core.publisher.Mono;
 
 @Slf4j
+@RequiredArgsConstructor
 @Component
 public class JwtAuthenticationFilter implements GlobalFilter {
     private final JwtTokenValidator jwtTokenValidator;
-    private final List<PathPattern> whiteListPatterns;
-
-    public JwtAuthenticationFilter(JwtTokenValidator jwtTokenValidator, GatewayWhitelistProperties properties) {
-        this.jwtTokenValidator = jwtTokenValidator;
-        log.info("🔖 Whitelist Paths: {}", String.join(", ", properties.getWhitelist()));
-        PathPatternParser parser = new PathPatternParser();
-        this.whiteListPatterns = properties.getWhitelist().stream().map(parser::parse).toList();
-    }
+    private final GatewayWhitelistCache gatewayWhitelistCache;
 
     private boolean isWhitelisted(String path) {
         PathContainer container = PathContainer.parsePath(path);
-        return whiteListPatterns.stream().anyMatch(pattern -> pattern.matches(container));
+        return gatewayWhitelistCache.getWhiteListPatterns().stream()
+                .anyMatch(pattern -> pattern.matches(container));
     }
 
     @Override
