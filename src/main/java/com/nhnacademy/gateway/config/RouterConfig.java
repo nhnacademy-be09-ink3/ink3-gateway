@@ -11,6 +11,10 @@ public class RouterConfig {
     public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
         // Eureka 등록 기반 자동 분산
         return builder.routes()
+                .route("auth-ping",
+                        p -> p.path("/auth/ping")
+                                .uri("no://ECHO")
+                )
                 .route("auth-service",
                         p -> p.path("/auth/**")
                                 .uri("lb://AUTH-SERVICE")
