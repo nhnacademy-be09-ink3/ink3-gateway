@@ -12,7 +12,7 @@ public class RouterConfig {
         // Eureka 등록 기반 자동 분산
         return builder.routes()
                 .route("auth-ping",
-                        p -> p.path("/auth/ping")
+                        p -> p.path("/token/validate")
                                 .uri("no://ECHO")
                 )
                 .route("auth-service",
